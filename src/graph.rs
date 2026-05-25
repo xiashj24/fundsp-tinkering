@@ -1,11 +1,11 @@
-use fundsp::prelude64::*;
+use fundsp::prelude32::*;
 
 // SC: 2**LFNoise0.kr(4/3, 4)*300
 // Stepped random at 4/3 Hz with range [-4, 4] mapped through 2^x * 300
 // → frequency sweeps between 18.75 Hz and 4800 Hz in discrete steps
-fn bpf_freq(t: f64) -> f64 {
+fn bpf_freq(t: f32) -> f32 {
     let step = (t * 4.0 / 3.0) as u64;
-    2.0_f64.powf((rnd1(step) * 2.0 - 1.0) * 4.0) * 300.0
+    (2.0_f64.powf((rnd1(step) * 2.0 - 1.0) * 4.0) * 300.0) as f32
 }
 
 pub fn build() -> impl AudioUnit {

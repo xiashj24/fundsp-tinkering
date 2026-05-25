@@ -1,8 +1,13 @@
 mod graph;
+mod nodes;
+mod patch_euclid;
+mod patch_euclid_live;
+mod patch_sequencing;
+mod piano_phase;
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{FromSample, SizedSample};
-use fundsp::prelude64::*;
+use fundsp::prelude32::*;
 
 fn main() {
     let host = cpal::default_host();
@@ -21,12 +26,12 @@ fn run<T: SizedSample + FromSample<f32>>(device: &cpal::Device, config: &cpal::S
     let sample_rate = config.sample_rate as f64;
     let channels = config.channels as usize;
 
-    let mut graph = graph::build();
+    let mut graph = patch_sequencing::build();
 
     graph.set_sample_rate(sample_rate);
     graph.allocate();
 
-    let mut next_value = move || graph.get_stereo();
+    let mut next_value = move || { let m = graph.get_mono(); (m, m) };
 
     let stream = device
         .build_output_stream(
@@ -40,7 +45,7 @@ fn run<T: SizedSample + FromSample<f32>>(device: &cpal::Device, config: &cpal::S
         .unwrap();
 
     stream.play().unwrap();
-    println!("Playing 440 Hz sine through low-pass filter. Press Enter to stop.");
+    println!("Playing Piano Phase (Steve Reich). Press Enter to stop.");
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).unwrap();
 }
